@@ -13,8 +13,7 @@ A simple and clean todo application built with React that helps you manage your 
 
 ## Demo
 
-![Todo App Screenshot](/todo-app/public/todo-app-ss.png)
-_Add a screenshot of your app here_
+![Todo App Screenshot](./public/todo-app-ss.png)
 
 ## Getting Started
 

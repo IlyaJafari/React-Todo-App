@@ -1,25 +1,144 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import "./App.css";
 
-function App() {
+// const initialList = [];
+
+function ButtonDelete({ onClick }) {
+  return (
+    <button className="btn-trash" onClick={onClick}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="size-6"
+        width={24}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+        />
+      </svg>
+    </button>
+  );
+}
+
+export default function App() {
+  const [list, setList] = useState(() => {
+    const saved = localStorage.getItem("todoList");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("todoList", JSON.stringify(list));
+  }, [list]);
+
+  function handleAddTask(taskText) {
+    const newTask = {
+      text: taskText,
+      completed: false,
+    };
+    setList((prevList) => [...prevList, newTask]);
+  }
+
+  function handleDeleteTask(indexToDelete) {
+    setList((prevList) =>
+      prevList.filter((item, index) => index !== indexToDelete)
+    );
+  }
+
+  function handleClearAll() {
+    setList([]);
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="container">
+        <h1>Todo App</h1>
+        <ToDoForm handleAddTask={handleAddTask} />
+        <ToDoList list={list} handleDeleteTask={handleDeleteTask} />
+        <Status list={list} clearAll={handleClearAll} />
+      </div>
     </div>
   );
 }
 
-export default App;
+function ToDoForm({ handleAddTask }) {
+  const [task, setTask] = useState("");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!task.trim()) return;
+    handleAddTask(task);
+    setTask("");
+  }
+
+  return (
+    <form className="todo-form" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Add your new todo"
+        value={task}
+        onChange={(e) => setTask(e.target.value)}
+      />
+      <button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="size-6"
+          width={24}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 4.5v15m7.5-7.5h-15"
+          />
+        </svg>
+      </button>
+    </form>
+  );
+}
+
+function ToDoList({ list, handleDeleteTask }) {
+  return (
+    <div className="todo-list">
+      {list.map((item, i) => (
+        <ToDoItem
+          key={i + 1}
+          index={i}
+          item={item}
+          handleDeleteTask={handleDeleteTask}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ToDoItem({ index, item, handleDeleteTask }) {
+  return (
+    <div className="todo-item">
+      <p>{item.text}</p>
+      <ButtonDelete onClick={() => handleDeleteTask(index)} />
+    </div>
+  );
+}
+
+function Status({ list, clearAll }) {
+  return (
+    <div className="status">
+      <p>
+        {list.length <= 0
+          ? "Start by adding your task"
+          : `You have ${list.length} pending tasks`}
+      </p>
+      <button className="btn btn-delete" onClick={clearAll}>
+        Clear All
+      </button>
+    </div>
+  );
+}
